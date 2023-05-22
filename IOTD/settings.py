@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "users",
     "articles",
 ]
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -159,7 +160,7 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": "django-insecure-_ub#$7#&fga$p&g7lxuq^crf%^$7f!_tp43t_!j8cn@!4*l_om",
+    "SIGNING_KEY": get_secret("SECRET_KEY"),
     "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,
