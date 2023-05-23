@@ -333,3 +333,5 @@ secrets.json
 **/migrations/**_
 
 !**/migrations/_init_.py
+
+secrets.json
