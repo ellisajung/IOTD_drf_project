@@ -4,9 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.db.models.query_utils import Q
 from rest_framework_simplejwt.views import TokenObtainPairView
-
 from .models import User
-from .serializers import UserLikeSerializer, UserFollowSerializer, UserFeedSerializer
+from users.serializers import UserLikeSerializer, UserFollowSerializer, UserFeedSerializer, LoginViewSerializer
 
 
 class UserView(APIView):
@@ -17,8 +16,7 @@ class UserView(APIView):
 
 class LoginView(TokenObtainPairView):
     """로그인 정보 전송 및 처리 요청"""
-
-    pass
+    serializer_class = LoginViewSerializer
 
 
 class UserDeleteView(APIView):

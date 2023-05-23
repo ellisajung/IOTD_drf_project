@@ -1,9 +1,23 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from users.models import User
+from django.contrib.auth.hashers import make_password
 from .models import User
-from articles.models import Article
 
 from articles.serializers import ArticleListSerializer
 
+class LoginViewSerializer(TokenObtainPairSerializer):
+    
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['nickname'] = user.nickname
+        token['email'] = user.email
+
+
+        return token
 
 # 특정 유저가 팔로우하고 팔로잉하는 유저 목록을 보여줌
 class UserFollowSerializer(serializers.Serializer):
