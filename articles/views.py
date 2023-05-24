@@ -57,7 +57,7 @@ class ArticleDetailView(APIView):
         else:
             return Response("수정 권한이 없습니다.", status=status.HTTP_403_FORBIDDEN)
 
-    """게시긓 삭제"""
+    """게시글 삭제"""
 
     def delete(self, request, article_id):
         article = get_object_or_404(Article, id=article_id)
