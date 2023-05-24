@@ -7,6 +7,61 @@ from django.contrib.auth.hashers import make_password
 from articles.serializers import ArticleListSerializer
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
+        extra_kwargs = {
+            "password": {
+                "write_only": True,
+            },
+        }
+
+    def create(self, validated_data):
+        user = super().create(validated_data)
+        password = user.password
+        user.set_password(password)
+        user.save()
+        return user
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    followers_count = serializers.SerializerMethodField()
+    followings_count = serializers.SerializerMethodField()
+
+    def get_followers_count(self, obj):
+        return obj.followers.count()
+    
+    def get_followings_count(self, obj):
+        return obj.followings.count()
+
+    class Meta:
+        model = User
+        fields=("id", "email", "username", "image", "gender", "date_of_birth", "preference", "introduction", "followings_count", "followers_count")
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("email", "password", "username", "gender", "date_of_birth", "preference", "introduction", "image")
+        read_only_fields = ["email",]
+        extra_kwargs = {
+            "password": {
+                "write_only": True,
+            },
+            "username": {
+                "required": False,
+            },
+        }
+
+    def update(self, instance, validated_data):
+        user = super().update(instance, validated_data)
+        password = user.password
+        user.set_password(password)
+        user.save()
+        return user
+
+
 class LoginViewSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
