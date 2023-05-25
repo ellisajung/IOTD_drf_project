@@ -31,7 +31,6 @@ class UserView(APIView):
 
 class LoginView(TokenObtainPairView):
     """로그인 정보 전송 및 처리 요청"""
-
     serializer_class = LoginViewSerializer
 
 
@@ -42,7 +41,6 @@ class UserDeleteView(APIView):
     유저 정보 요청
     user_id로 아무나 프로필 조회 가능
     """
-
     # user/profile/<int:user_id>/
     def get(self, request, user_id):
         user = get_object_or_404(User, id=user_id)
@@ -51,8 +49,8 @@ class UserDeleteView(APIView):
     """
     유저 정보 수정
     """
-
-    def put(self, request):
+    def put(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
         serializer = UserUpdateSerializer(instance=request.user, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -90,12 +88,15 @@ class FollowView(APIView):
     def post(self, request, user_id):
         you = get_object_or_404(User, id=user_id)
         me = request.user
-        if me in you.followers.all():
-            you.followers.remove(me)
-            return Response("팔로우 취소", status=status.HTTP_204_NO_CONTENT)
+        if me != you:
+            if me in you.followers.all():
+                you.followers.remove(me)
+                return Response("팔로우 취소", status=status.HTTP_204_NO_CONTENT)
+            else:
+                you.followers.add(me)
+                return Response("팔로우", status=status.HTTP_200_OK)
         else:
-            you.followers.add(me)
-            return Response("팔로우", status=status.HTTP_200_OK)
+            return Response("자신은 팔로우 할 수 없습니다.")
 
 
 # 내가 팔로우 한 사용자의 게시글을 받아옴
