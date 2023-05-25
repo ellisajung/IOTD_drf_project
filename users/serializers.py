@@ -26,8 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    followers_count = serializers.SerializerMethodField()
-    followings_count = serializers.SerializerMethodField()
+    
 
     def get_followers_count(self, obj):
         return obj.followers.count()
@@ -37,19 +36,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields=("id", "email", "username", "image", "gender", "date_of_birth", "preference", "introduction", "followings_count", "followers_count")
+        fields= ("id", "email", "nickname", "profile_img", "fashion", "followings")
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("email", "password", "username", "gender", "date_of_birth", "preference", "introduction", "image")
+        fields = ("id", "email", "password", "nickname", "profile_img", "fashion")
         read_only_fields = ["email",]
         extra_kwargs = {
             "password": {
                 "write_only": True,
             },
-            "username": {
+            "nickname": {
                 "required": False,
             },
         }
