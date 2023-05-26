@@ -83,10 +83,12 @@ class ArticleLikesView(APIView):
 
 # 댓글 작작성
 class CommentsView(APIView):
-    def post(self, request):
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request, article_id):
+    
         serializer = CommentCreateSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            serializer.save(user=request.user, article=Article.objects.get(pk=article_id))
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
