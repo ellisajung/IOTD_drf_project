@@ -26,16 +26,25 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    followings_count = serializers.SerializerMethodField()
+    followers_count = serializers.SerializerMethodField()
+
     def get_followers_count(self, obj):
         return obj.followers.count()
 
     def get_followings_count(self, obj):
         return obj.followings.count()
+    
+    articles = serializers.SerializerMethodField()
+
+    def get_articles(self, obj):
+        articles = Article.objects.filter(pk=obj.id)
+        serializer = ArticleListSerializer(articles, many=True)
+        return serializer.data
 
     class Meta:
         model = User
-        fields = ("id", "email", "nickname", "profile_img", "fashion", "followings")
-
+        fields = ("id", "email", "nickname", "profile_img", "fashion", "followers_count", "followings_count", "articles",)
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:

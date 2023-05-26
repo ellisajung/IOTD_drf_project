@@ -42,10 +42,6 @@ class User(AbstractBaseUser):
         "self", symmetrical=False, related_name="followers", blank=True
     )
 
-    # 팔로잉 수
-    def total_followings(self):
-        return self.followings.count()
-
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
