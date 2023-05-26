@@ -38,6 +38,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_followings_count(self, obj):
         return obj.followings.count()
+    
+    articles = serializers.SerializerMethodField()
+
+    def get_articles(self, obj):
+        articles = Article.objects.filter(pk=obj.id)
+        serializer = ArticleListSerializer(articles, many=True)
+        return serializer.data
 
     class Meta:
         model = User
