@@ -16,7 +16,12 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["email", "nickname", "profile_img", "fashion",]
+        fields = [
+            "email",
+            "nickname",
+            "profile_img",
+            "fashion",
+        ]
 
     def clean_password2(self):
         # Check that the two password entries match
@@ -40,17 +45,51 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["email", "nickname", "profile_img", "fashion", "password", "is_active", "is_admin"]
+        fields = [
+            "email",
+            "nickname",
+            "profile_img",
+            "fashion",
+            "password",
+            "is_active",
+            "is_admin",
+        ]
 
 
 class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
-    list_display = ["email", "nickname", "profile_img", "fashion", "is_active", "is_admin"]
+    list_display = [
+        "email",
+        "nickname",
+        "profile_img",
+        "fashion",
+        "is_active",
+        "is_admin",
+    ]
     list_filter = ["is_admin"]
     fieldsets = [
-        (None, {"fields": ["email", "nickname", "profile_img", "fashion", "password"]}),
-        ("Permissions", {"fields": ["is_admin",]}),
+        (
+            None,
+            {
+                "fields": [
+                    "email",
+                    "nickname",
+                    "password",
+                    "profile_img",
+                    "fashion",
+                    "followings",
+                ]
+            },
+        ),
+        (
+            "Permissions",
+            {
+                "fields": [
+                    "is_admin",
+                ]
+            },
+        ),
     ]
     add_fieldsets = [
         (
@@ -64,6 +103,7 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ["email"]
     ordering = ["email"]
     filter_horizontal = []
+
 
 admin.site.register(User, UserAdmin)
 admin.site.unregister(Group)
