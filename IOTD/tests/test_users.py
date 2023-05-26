@@ -16,12 +16,12 @@
 
 # @pytest.mark.django_db
 # def test_sign_up():
-# response = APIClient().post(
-#     "/users/signup/",
-#     {
-#         "email": "test@test.com",
-#         "password": "test",
-#     },
-#     format="json",
-# )
-#     assert response.status_code == 201
+#     response = APIClient().post(
+#         "/users/signup/",
+#         {
+#             "email": "test@test.com",
+#             "password": "test",
+#         },
+#         format="json",
+#     )
+# assert response.status_code == 201
