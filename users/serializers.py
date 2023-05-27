@@ -26,24 +26,33 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    
+    followings_count = serializers.SerializerMethodField()
+    followers_count = serializers.SerializerMethodField()
 
     def get_followers_count(self, obj):
         return obj.followers.count()
-    
+
     def get_followings_count(self, obj):
         return obj.followings.count()
+    
+    articles = serializers.SerializerMethodField()
+
+    def get_articles(self, obj):
+        articles = Article.objects.filter(pk=obj.id)
+        serializer = ArticleListSerializer(articles, many=True)
+        return serializer.data
 
     class Meta:
         model = User
-        fields= ("id", "email", "nickname", "profile_img", "fashion", "followings")
-
+        fields = ("id", "email", "nickname", "profile_img", "fashion", "followers_count", "followings_count", "articles",)
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("id", "email", "password", "nickname", "profile_img", "fashion")
-        read_only_fields = ["email",]
+        read_only_fields = [
+            "email",
+        ]
         extra_kwargs = {
             "password": {
                 "write_only": True,
@@ -75,14 +84,14 @@ class LoginViewSerializer(TokenObtainPairSerializer):
 
 # 특정 유저가 팔로우하고 팔로잉하는 유저 목록을 보여줌
 class UserFollowSerializer(serializers.ModelSerializer):
-    followers = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    followings = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    followers = UserProfileSerializer(many=True, read_only=True)
+    followings = UserProfileSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
         fields = (
             "id",
-            "username",
+            "nickname",
             "followers",
             "followings",
         )

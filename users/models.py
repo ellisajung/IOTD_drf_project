@@ -1,15 +1,11 @@
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.conf import settings
-
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError("이메일을 입력하세요")
-        user = self.model(
-            email=self.normalize_email(email),
-            **extra_fields
-        )
+        user = self.model(email=self.normalize_email(email), **extra_fields)
 
         user.set_password(password)
         user.save(using=self._db)
@@ -36,26 +32,21 @@ class User(AbstractBaseUser):
         ATHLEISURE = "ATHLEISURE", "애슬레저"
         FUNK = "FUNK", "펑크"
 
-    email = models.EmailField('이메일',
-        max_length=255,
-        unique=True
-    )
+    email = models.EmailField("이메일", max_length=255, unique=True)
     nickname = models.CharField("닉네임", max_length=50, default="사용자")
     profile_img = models.ImageField("프로필 이미지", null=True, blank=True, upload_to="%Y/%m")
-    fashion = models.CharField("패션", max_length=50, choices=FashionChoices.choices, null=True)
+    fashion = models.CharField(
+        "패션", max_length=50, choices=FashionChoices.choices, null=True
+    )
     followings = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name="followers", blank=True
+        "self", symmetrical=False, related_name="followers", blank=True
     )
 
-    # 팔로잉 수
-    def total_followings(self):
-        return self.followings.count()
-    
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
     objects = UserManager()
- 
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
