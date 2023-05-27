@@ -84,7 +84,7 @@ class UserProfileView(APIView):
     유저 정보 수정
     """
 
-    def put(self, request):
+    def put(self, request, user_id):
         serializer = UserUpdateSerializer(instance=request.user, data=request.data)
         if serializer.is_valid():
             serializer.save()
