@@ -9,6 +9,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import User
 from users.serializers import (
     UserSerializer,
+    UserPasswordSerializer,
     UserProfileSerializer,
     UserUpdateSerializer,
     UserLikeSerializer,
@@ -26,12 +27,15 @@ class UserView(APIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "유저 인증용 이메일을 전송했습니다."}, status=status.HTTP_201_CREATED)
+            return Response(
+                {"message": "유저 인증용 이메일을 전송했습니다."}, status=status.HTTP_201_CREATED
+            )
         else:
             return Response(
                 {"message": f"${serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST
             )
-        
+
+
 class EmailVerifyView(APIView):
     def get(self, request, uidb64, token):
         try:
@@ -49,6 +53,19 @@ class LoginView(TokenObtainPairView):
     """로그인 정보 전송 및 처리 요청"""
 
     serializer_class = LoginViewSerializer
+
+
+# 유저의 이메일 정보로 패스워드를 리셋시켜주기
+class UserPasswordView(APIView):
+    def put(self, request):
+        user = get_object_or_404(User, email=request.data.get("email"))
+        serializer = UserPasswordSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "비밀번호 수정 이메일을 전송했습니다."}, status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserProfileView(APIView):
@@ -89,7 +106,9 @@ class UserProfileView(APIView):
             user.save()
             return Response({"message": "회원 탈퇴!"}, status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response({"message": "회원 탈퇴에 실패했습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"message": "회원 탈퇴에 실패했습니다."}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
 
 class FollowView(APIView):
