@@ -1,9 +1,13 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from users.models import User
-from articles.models import Article
 from django.contrib.auth.hashers import make_password
+from django.core.mail import EmailMessage
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
 
+from .models import User
+from .tokens import user_verify_token
+from articles.models import Article
 from articles.serializers import ArticleListSerializer
 
 
@@ -22,6 +26,18 @@ class UserSerializer(serializers.ModelSerializer):
         password = user.password
         user.set_password(password)
         user.save()
+
+        # url에 포함될 user.id 에러 방지용  encoding하기
+        uidb64 = urlsafe_base64_encode(force_bytes(user.id))
+        # tokens.py에서 함수 호출
+        token = user_verify_token.make_token(user)
+        to_email = user.email
+        email = EmailMessage(
+            f"{user.nickname}님의 이메일 인증",
+            f"아래의 링크를 눌러 이메일 인증을 완료해주세요.\n\nhttp://127.0.0.1:8000/users/verify/{uidb64}/{token}",
+            to=[to_email],
+        )
+        email.send()
         return user
 
 
