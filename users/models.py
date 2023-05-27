@@ -44,7 +44,7 @@ class User(AbstractBaseUser):
         "self", symmetrical=False, related_name="followers", blank=True
     )
 
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
 
     objects = UserManager()
