@@ -39,6 +39,10 @@ class ArticleCreateSerializer(serializers.ModelSerializer):
 
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+
+    def get_user(self, obj):
+        return obj.user.nickname
     class Meta:
         model = Article
         fields = "__all__"

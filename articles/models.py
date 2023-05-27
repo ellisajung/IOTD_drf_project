@@ -18,7 +18,6 @@ class Article(models.Model):
     image = models.ImageField("이미지", upload_to="%Y/%m/", blank=True)
     likes = models.ManyToManyField(User, related_name="like_articles", blank=True)
     tags = models.ManyToManyField(Hashtag, blank=True)
-
     created_at = models.DateTimeField("생성 시간", auto_now_add=True)
     updated_at = models.DateTimeField("수정 시간", auto_now=True)
 
