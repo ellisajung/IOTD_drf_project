@@ -1,3 +1,39 @@
+"""
+users 뷰 테스트
+"""
+# import os
+
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "IOTD.settings")
+
+# from django.core.wsgi import get_wsgi_application
+
+# application = get_wsgi_application()
+
+# from users.models import User
+# from django.urls import reverse
+# from rest_framework.test import APITestCase
+# from rest_framework import status
+# import pytest
+# from rest_framework.test import APIClient
+
+
+# @pytest.mark.django_db
+# def test_sign_up():
+#     response = APIClient().post(
+#         "/users/signup/",
+#         {
+#             "email": "test@test.com",
+#             "password": "test",
+#         },
+#         format="json",
+#     )
+# assert response.status_code == 201
+
+
+"""
+articles 뷰 테스트
+"""
+
 import os
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "IOTD.settings")
@@ -45,7 +81,6 @@ class ArticlesViewTest(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Article.objects.count(), 1)
-        
 
     # 게시글 모두보기(아무것도 없을 때)
     def test_get_articles_list_empty(self):
@@ -96,7 +131,7 @@ class PostingDetailViewTest(APITestCase):
             reverse("token_obtain_pair"), self.user_data
         ).data["access"]
 
-#     # 게시글 상세보기
+    #     # 게시글 상세보기
     def test_articles_detail(self):
         response = self.client.get(
             path=reverse("article_detail_view", kwargs={"article_id": 5}),
@@ -151,7 +186,6 @@ class CommentViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Comment.objects.count(), 1)
         self.assertEqual(Comment.objects.get().content, "test content")
-
 
 
 # # view = LikeView, url name = "like_view", method = post

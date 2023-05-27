@@ -96,7 +96,7 @@ class MyFeedView(APIView):
     def get(self, request):
         user = get_object_or_404(User, id=request.user.id)
         serializer = UserFeedSerializer(user)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 # 내가 좋아요 한 게시글을 받아옴
@@ -104,4 +104,4 @@ class MyLikeView(APIView):
     def get(self, request):
         user = get_object_or_404(User, id=request.user.id)
         serializer = UserLikeSerializer(user)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)

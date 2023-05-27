@@ -26,8 +26,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    followings_count = serializers.SerializerMethodField()
-    followers_count = serializers.SerializerMethodField()
+    articles = serializers.SerializerMethodField()
+
+    def get_articles(self, obj):
+        articles = obj.my_articles.all()  # user와 관련된 Article 객체들을 가져옴
+        article_serializer = ArticleListSerializer(articles, many=True)
+        return article_serializer.data
 
     def get_followers_count(self, obj):
         return obj.followers.count()
@@ -44,7 +48,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("id", "email", "nickname", "profile_img", "fashion", "followers_count", "followings_count", "articles",)
+        fields = ("id", "email", "nickname", "profile_img", "fashion", "followers", "followings", "articles",)
+
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -107,13 +112,11 @@ class UserLikeSerializer(serializers.ModelSerializer):
 
 
 class UserFeedSerializer(serializers.ModelSerializer):
-    # 팔로잉 하는 사용자들의 목록을 들고옴
-    followings = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    # 그 사용자들의 게시글을 찾아옴
     feeds = serializers.SerializerMethodField()
 
     def get_feeds(self, obj):
-        feeds = Article.objects.filter(user__in=obj.followings)
+        followings = obj.followings.all()  # ManyRelatedManager 객체를 실제 객체 목록으로 변환
+        feeds = Article.objects.filter(user__in=followings)
         feed_serializer = ArticleListSerializer(feeds, many=True)
         return feed_serializer.data
 
