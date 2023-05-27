@@ -4,13 +4,6 @@ from users.models import User
 # Create your models here.
 
 
-class Hashtag(models.Model):
-    content = models.CharField("태그 내용", max_length=32, unique=True)
-
-    def __str__(self):
-        return self.content
-
-
 class Article(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="my_articles")
     title = models.CharField("제목", max_length=50)

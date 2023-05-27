@@ -6,9 +6,11 @@ urlpatterns = [
     path("signup/", views.UserView.as_view(), name="user_view"),
     path("login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("password/", views.UserPasswordView.as_view(), name="user_password_view"),
-    path("profile/", views.UserProfileView.as_view(), name="user_edit_view"),
+    path("profile/", views.UserProfileView.as_view(), name="user_profile_view"),
     path(
-        "profile/<int:user_id>/", views.UserProfileView.as_view(), name="user_edit_view"
+        "profile/<int:user_id>/",
+        views.UserProfileView.as_view(),
+        name="user_profile_view",
     ),
     path("follow/<int:user_id>/", views.FollowView.as_view(), name="follow_view"),
     path("myfeed/", views.MyFeedView.as_view(), name="myfeed_view"),
