@@ -38,6 +38,7 @@ class ArticleDetailView(APIView):
     def get(self, request, article_id):
         article = get_object_or_404(Article, id=article_id)
         serializer = ArticleDetailSerializer(article)
+        print(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     """게시글 수정"""

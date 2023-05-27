@@ -9,8 +9,8 @@ class Article(models.Model):
     content = models.TextField("내용")
     image = models.ImageField("이미지", upload_to="%Y/%m/", blank=True)
     likes = models.ManyToManyField(User, related_name="like_articles", blank=True)
-    tags = models.CharField("태그", max_length=20)
-
+    tags = models.CharField("태그", max_length=20, blank=True)
+    
     created_at = models.DateTimeField("생성 시간", auto_now_add=True)
     updated_at = models.DateTimeField("수정 시간", auto_now=True)
 

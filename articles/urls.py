@@ -22,3 +22,4 @@ urlpatterns = [
         name="comments_detail_view",
     ),
 ]
+
