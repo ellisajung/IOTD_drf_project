@@ -411,6 +411,19 @@ pytest = ">=5.0.0"
 typing_extensions = "*"
 
 [[package]]
+name = "pytest-faker"
+version = "2.0.0"
+description = "Faker integration with the pytest framework."
+optional = false
+python-versions = "*"
+files = [
+    {file = "pytest-faker-2.0.0.tar.gz", hash = "sha256:6b37bb89d94f96552bfa51f8e8b89d32addded8ddb58a331488299ef0137d9b6"},
+]
+
+[package.dependencies]
+Faker = ">=0.7.3"
+
+[[package]]
 name = "python-dateutil"
 version = "2.8.2"
 description = "Extensions to the standard Python datetime module"
@@ -487,4 +500,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "a10dab866e31113bfc59c21551b0d4dec99bb799709f73d339f35456fe0617e8"
+content-hash = "1d083d0b6d63427434233943850981da02f4ead116a0203e3ad9cd13d72fd2ec"

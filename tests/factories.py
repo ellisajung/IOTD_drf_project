@@ -1,6 +1,9 @@
 import factory
-from factory.django import DjangoModelFactory
+from faker import Faker
 
+fake = Faker()
+
+from factory.django import DjangoModelFactory
 from users.models import UserManager, User
 from articles.models import Article, Comment
 
@@ -21,7 +24,9 @@ class UserFactory(DjangoModelFactory):
     class Meta:
         model = User
 
-    pass
+    # email = fake.email()
+    # is_active = 'True'
+    # is_admin = 'False'
 
 
 """
