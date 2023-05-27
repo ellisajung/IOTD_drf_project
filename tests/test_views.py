@@ -1,38 +1,11 @@
-"""
-users 뷰 테스트
-"""
-# import os
+import pytest
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient
+from users.models import User
+from users.serializers import UserSerializer
+from factories import UserFactory
 
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "IOTD.settings")
-
-# from django.core.wsgi import get_wsgi_application
-
-# application = get_wsgi_application()
-
-# from users.models import User
-# from django.urls import reverse
-# from rest_framework.test import APITestCase
-# from rest_framework import status
-# import pytest
-# from rest_framework.test import APIClient
-
-
-# @pytest.mark.django_db
-# def test_sign_up():
-#     response = APIClient().post(
-#         "/users/signup/",
-#         {
-#             "email": "test@test.com",
-#             "password": "test",
-#         },
-#         format="json",
-#     )
-# assert response.status_code == 201
-
-
-"""
-articles 뷰 테스트
-"""
 
 import os
 
@@ -48,6 +21,120 @@ from rest_framework.test import APITestCase
 from django.urls import reverse
 from rest_framework import status
 import pytest
+
+
+"""
+users 뷰 테스트
+"""
+
+
+@pytest.fixture
+def api_client():
+    return APIClient()
+
+
+@pytest.fixture
+def create_user():
+    def _create_user(**kwargs):
+        return UserFactory.create(**kwargs)
+
+    return _create_user
+
+
+@pytest.mark.django_db
+class TestUserView:
+    endpoint = reverse("user_view")
+
+    def test_create_user(self, api_client):
+        data = {
+            "username": "testuser",
+            "email": "testuser@example.com",
+            "password": "testpassword",
+        }
+        response = api_client.post(self.endpoint, data)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data["message"] == "가입완료!"
+
+    def test_create_user_with_invalid_data(self, api_client):
+        data = {}  # Invalid data, missing required fields
+        response = api_client.post(self.endpoint, data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+class TestUserProfileView:
+    def test_get_user_profile(self, api_client, create_user):
+        user = create_user()
+        endpoint = reverse("user_profile_view", args=[user.id])
+        response = api_client.get(endpoint)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == UserSerializer(user).data
+
+    def test_update_user_profile(self, api_client, create_user):
+        user = create_user()
+        endpoint = reverse("user_profile_view", args=[user.id])
+        data = {"username": "newusername"}
+        response = api_client.put(endpoint, data)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["username"] == "newusername"
+
+    def test_delete_user_profile(self, api_client, create_user):
+        user = create_user()
+        endpoint = reverse("user_profile_view", args=[user.id])
+        response = api_client.delete(endpoint)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["message"] == "회원 탈퇴!"
+        # Assert that the user is inactive
+        assert not User.objects.get(id=user.id).is_active
+
+
+@pytest.mark.django_db
+class TestFollowView:
+    def test_get_user_followers(self, api_client, create_user):
+        user = create_user()
+        endpoint = reverse("follow_view", args=[user.id])
+        response = api_client.get(endpoint)
+        assert response.status_code == status.HTTP_200_OK
+        # Assert the expected data in the response
+
+    def test_follow_user(self, api_client, create_user):
+        user = create_user()
+        endpoint = reverse("follow_view", args=[user.id])
+        response = api_client.post(endpoint)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == "팔로우"
+
+        response = api_client.post(endpoint)  # Unfollow the user
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+@pytest.mark.django_db
+class TestMyFeedView:
+    def test_get_my_feed(self, api_client, create_user):
+        user = create_user()
+        api_client.force_authenticate(user=user)
+        endpoint = reverse("my_feed_view")
+        response = api_client.get(endpoint)
+        assert response.status_code == status.HTTP_200_OK
+        # Assert the expected data in the response
+        # Add your assertions here based on the expected response data
+
+
+@pytest.mark.django_db
+class TestMyLikeView:
+    def test_get_my_likes(self, api_client, create_user):
+        user = create_user()
+        api_client.force_authenticate(user=user)
+        endpoint = reverse("my_like_view")
+        response = api_client.get(endpoint)
+        assert response.status_code == status.HTTP_200_OK
+        # Assert the expected data in the response
+        # Add your assertions here based on the expected response data
+
+
+"""
+articles 뷰 테스트
+"""
 
 
 @pytest.mark.django_db
