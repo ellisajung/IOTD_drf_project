@@ -61,6 +61,7 @@ class UserAdmin(BaseUserAdmin):
     add_form = UserCreationForm
     list_display = [
         "email",
+        "id",
         "nickname",
         "profile_img",
         "fashion",
