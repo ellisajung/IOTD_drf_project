@@ -1,5 +1,6 @@
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
+from django.shortcuts import redirect
 from rest_framework.generics import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -43,7 +44,8 @@ class EmailVerifyView(APIView):
             user = User.objects.get(pk=uid)
             if user_verify_token.check_token(user, token):
                 User.objects.filter(pk=uid).update(is_active=True)
-                return Response({"message": "이메일 인증 완료"}, status=status.HTTP_200_OK)
+                # redirect하는 주소는 안되면 로컬 포트 번호(5500) 확인!
+                return redirect("http://127.0.0.1:5500/users/login.html")
             return Response({"error": "인증 실패"}, status=status.HTTP_400_BAD_REQUEST)
         except KeyError:
             return Response({"error": "KEY ERROR"}, status=status.HTTP_400_BAD_REQUEST)
@@ -102,8 +104,7 @@ class UserProfileView(APIView):
         user = get_object_or_404(User, id=user_id)
         if request.user.id == user.id:
             user = request.user
-            user.is_active = False
-            user.save()
+            user.delete()
             return Response({"message": "회원 탈퇴!"}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(
@@ -122,12 +123,15 @@ class FollowView(APIView):
     def post(self, request, user_id):
         you = get_object_or_404(User, id=user_id)
         me = request.user
-        if me in you.followers.all():
-            you.followers.remove(me)
-            return Response("팔로우 취소", status=status.HTTP_204_NO_CONTENT)
+        if me != you:
+            if me in you.followers.all():
+                you.followers.remove(me)
+                return Response("팔로우 취소", status=status.HTTP_204_NO_CONTENT)
+            else:
+                you.followers.add(me)
+                return Response("팔로우", status=status.HTTP_200_OK)
         else:
-            you.followers.add(me)
-            return Response("팔로우", status=status.HTTP_200_OK)
+            return Response("자기 자신은 팔로우 할 수 없습니다!", status=status.HTTP_205_RESET_CONTENT)
 
 
 # 내가 팔로우 한 사용자의 게시글을 받아옴
