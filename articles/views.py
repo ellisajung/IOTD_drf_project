@@ -83,6 +83,13 @@ class ArticleLikesView(APIView):
 
 
 class CommentsView(APIView):
+    """게시글의 전체 댓글 들고오기"""
+    def get(self, request, article_id):
+        article = Article.objects.get(pk=article_id)
+        comments = article.comments.all()
+        serializer = CommentDetailSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     """댓글 작성"""
 
     def post(self, request, article_id):
