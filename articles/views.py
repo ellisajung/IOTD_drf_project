@@ -79,7 +79,7 @@ class ArticleLikesView(APIView):
             return Response("좋아요", status=status.HTTP_200_OK)
         else:
             article.likes.remove(request.user)
-            return Response("좋아요 취소", status=status.HTTP_200_OK)
+            return Response("좋아요 취소", status=status.HTTP_205_RESET_CONTENT)
 
 
 # 댓글 작작성

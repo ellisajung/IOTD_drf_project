@@ -88,6 +88,7 @@ class UserAdmin(BaseUserAdmin):
             {
                 "fields": [
                     "is_admin",
+                    "is_active",
                 ]
             },
         ),
