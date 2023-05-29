@@ -1,5 +1,6 @@
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
+from django.shortcuts import redirect
 from rest_framework.generics import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -22,7 +23,8 @@ from .tokens import user_verify_token
 
 
 class UserView(APIView):
-    # 회원가입 정보 전송 및 처리 요청
+    """회원가입 정보 전송 및 처리 요청"""
+
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
@@ -38,12 +40,14 @@ class UserView(APIView):
 
 class EmailVerifyView(APIView):
     def get(self, request, uidb64, token):
+        """유저 이메일 인증"""
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
             if user_verify_token.check_token(user, token):
                 User.objects.filter(pk=uid).update(is_active=True)
-                return Response({"message": "이메일 인증 완료"}, status=status.HTTP_200_OK)
+                # redirect하는 주소는 안되면 로컬 포트 번호(5500) 확인!
+                return redirect("http://127.0.0.1:5500/users/login.html")
             return Response({"error": "인증 실패"}, status=status.HTTP_400_BAD_REQUEST)
         except KeyError:
             return Response({"error": "KEY ERROR"}, status=status.HTTP_400_BAD_REQUEST)
@@ -55,8 +59,9 @@ class LoginView(TokenObtainPairView):
     serializer_class = LoginViewSerializer
 
 
-# 유저의 이메일 정보로 패스워드를 리셋시켜주기
 class UserPasswordView(APIView):
+    """유저의 이메일 정보로 패스워드를 리셋시켜주기"""
+
     def put(self, request):
         user = get_object_or_404(User, email=request.data.get("email"))
         serializer = UserPasswordSerializer(user, data=request.data)
@@ -69,22 +74,20 @@ class UserPasswordView(APIView):
 
 
 class UserProfileView(APIView):
-    # 유저 정보 요청, 수정, 회원 탈퇴
-
-    """
-    유저 정보 요청
-    user_id로 아무나 프로필 조회 가능
-    """
+    """유저 정보 요청, 수정, 회원 탈퇴"""
 
     def get(self, request, user_id):
+        """
+        유저 정보 요청
+        user_id로 아무나 프로필 조회 가능
+        """
         user = get_object_or_404(User, id=user_id)
         return Response(UserProfileSerializer(user).data, status=status.HTTP_200_OK)
 
-    """
-    유저 정보 수정
-    """
-
     def put(self, request, user_id):
+        """
+        유저 정보 수정
+        """
         serializer = UserUpdateSerializer(instance=request.user, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -92,18 +95,16 @@ class UserProfileView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    """
-    회원 탈퇴
-    is_active = False로 변경만 하고 회원 정보는 계속 보관
-    email(아이디), name 남아있어서 탈퇴한 회원이 같은 정보로 재가입 불가
-    """
-
     def delete(self, request, user_id):
+        """
+        회원 탈퇴
+        is_active = False로 변경만 하고 회원 정보는 계속 보관
+        email(아이디), name 남아있어서 탈퇴한 회원이 같은 정보로 재가입 불가
+        """
         user = get_object_or_404(User, id=user_id)
         if request.user.id == user.id:
             user = request.user
-            user.is_active = False
-            user.save()
+            user.delete()
             return Response({"message": "회원 탈퇴!"}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(
@@ -112,34 +113,41 @@ class UserProfileView(APIView):
 
 
 class FollowView(APIView):
-    # 특정 유저의 이름, 아이디, 팔로우/팔로잉 목록 반환
     def get(self, request, user_id):
+        """특정 유저의 이름, 아이디, 팔로우/팔로잉 목록 반환"""
         user = get_object_or_404(User, id=user_id)
         serializer = UserFollowSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # 특정 유저를 팔로우하기
     def post(self, request, user_id):
+        """특정 유저를 팔로우하기"""
         you = get_object_or_404(User, id=user_id)
         me = request.user
-        if me in you.followers.all():
-            you.followers.remove(me)
-            return Response("팔로우 취소", status=status.HTTP_204_NO_CONTENT)
+        if me != you:
+            if me in you.followers.all():
+                you.followers.remove(me)
+                return Response("팔로우 취소", status=status.HTTP_204_NO_CONTENT)
+            else:
+                you.followers.add(me)
+                return Response("팔로우", status=status.HTTP_200_OK)
         else:
-            you.followers.add(me)
-            return Response("팔로우", status=status.HTTP_200_OK)
+            return Response(
+                "자기 자신은 팔로우 할 수 없습니다!", status=status.HTTP_205_RESET_CONTENT
+            )
 
 
-# 내가 팔로우 한 사용자의 게시글을 받아옴
 class MyFeedView(APIView):
+    """내가 팔로우 한 사용자의 게시글을 받아옴"""
+
     def get(self, request):
         user = get_object_or_404(User, id=request.user.id)
         serializer = UserFeedSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# 내가 좋아요 한 게시글을 받아옴
 class MyLikeView(APIView):
+    """내가 좋아요 한 게시글을 받아옴"""
+
     def get(self, request):
         user = get_object_or_404(User, id=request.user.id)
         serializer = UserLikeSerializer(user)

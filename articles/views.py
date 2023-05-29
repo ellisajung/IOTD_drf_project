@@ -79,28 +79,26 @@ class ArticleLikesView(APIView):
             return Response("좋아요", status=status.HTTP_200_OK)
         else:
             article.likes.remove(request.user)
-            return Response("좋아요 취소", status=status.HTTP_200_OK)
+            return Response("좋아요 취소", status=status.HTTP_205_RESET_CONTENT)
 
 
-# 댓글 작작성
 class CommentsView(APIView):
-    
-    def get(self, request, article_id):
-        article = Article.objects.get(pk=article_id)
-        comments = article.comments.all()
-        serializer = CommentDetailSerializer(comments, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
+    """댓글 작성"""
+
     def post(self, request, article_id):
         serializer = CommentCreateSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user, article=Article.objects.get(pk=article_id))
+            serializer.save(
+                user=request.user, article=Article.objects.get(pk=article_id)
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class CommentsDetailView(APIView):
+    """댓글 수정"""
+
     def put(self, request, comment_id):
         comment = get_object_or_404(Comment, id=comment_id)
         if request.user == comment.user:
@@ -114,6 +112,8 @@ class CommentsDetailView(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response("수정 권한이 없습니다.", status=status.HTTP_403_FORBIDDEN)
+
+    """댓글 삭제"""
 
     def delete(self, request, comment_id):
         comment = get_object_or_404(Comment, id=comment_id)

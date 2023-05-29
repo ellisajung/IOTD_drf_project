@@ -114,6 +114,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "password": {
                 "write_only": True,
+                "required" : False,
             },
             "nickname": {
                 "required": False,

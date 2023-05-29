@@ -35,7 +35,7 @@ class User(AbstractBaseUser):
         FUNK = "FUNK", "펑크"
 
     email = models.EmailField("이메일", max_length=255, unique=True)
-    nickname = models.CharField("닉네임", max_length=50, default="사용자")
+    nickname = models.CharField("닉네임", max_length=50, default="사용자", unique=True)
     profile_img = models.ImageField("프로필 이미지", null=True, blank=True, upload_to="%Y/%m")
     fashion = models.CharField(
         "패션", max_length=50, choices=FashionChoices.choices, null=True
