@@ -1,6 +1,7 @@
 # IOTD
 
 [Frontend](https://github.com/kimty9627/IOTD_Project_Front)
+
 [Backend](https://github.com/ellisajung/IOTD_drf_project)
 
 ## Item of the Day
